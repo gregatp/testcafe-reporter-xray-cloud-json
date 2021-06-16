@@ -1,26 +1,22 @@
-# testcafe-reporter-xray-json
-[![Build Status](https://travis-ci.org/s1mob/testcafe-reporter-xray-json.svg)](https://travis-ci.org/s1mob/testcafe-reporter-xray-json)
+# testcafe-reporter-xray-cloud-json
 
-This is the **xray-json** reporter plugin for [TestCafe](http://devexpress.github.io/testcafe).
+This is the **xray-cloud-json** reporter plugin for [TestCafé](http://devexpress.github.io/testcafe).
 
-<p align="center">
-    <img src="https://raw.github.com/s1mob/testcafe-reporter-xray-json/master/media/preview.png" alt="preview" />
-</p>
+![preview image](https://raw.github.com/paulmedwards/testcafe-reporter-xray-cloud-json/master/media/preview.png)
 
 ## Install
 
-```
-npm install testcafe-reporter-xray-json
+```text
+npm install testcafe-reporter-xray-cloud-json
 ```
 
 ## Usage
 
 When you run tests from the command line, specify the reporter name by using the `--reporter` option:
 
+```text
+testcafe chrome 'path/to/test/file.js' --reporter xray-cloud-json
 ```
-testcafe chrome 'path/to/test/file.js' --reporter xray-json
-```
-
 
 When you use API, pass the reporter name to the `reporter()` method:
 
@@ -29,9 +25,12 @@ testCafe
     .createRunner()
     .src('path/to/test/file.js')
     .browsers('chrome')
-    .reporter('xray-json') // <-
+    .reporter('xray-cloud-json') // <-
     .run();
 ```
 
-## Author
-mboukhenaif (https://github.com/s1mob)
+## Authors
+
+- [Paul M Edwards](https://github.com/PaulMEdwards)
+- [Mohammed Boukhenaif](https://github.com/s1mob)
+- [Antonio Reyes](https://github.com/antreyes)

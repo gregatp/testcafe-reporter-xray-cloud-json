@@ -26,14 +26,14 @@ module.exports = function () {
         },
 
         async reportTestDone (name, testRunInfo) {
-            let testStatus = 'UNDEFINED';
+            let testStatus = 'TODO';
             const currentEvidences = {};
 
             const testStartDate = new Date();
 
             currentTest.testKey = ''; //still didn't find a way to get testKey so it stays empty for now
             if (!testRunInfo.skipped && JSON.stringify(testRunInfo.errs).replace(/[[\]]/g, '').length > 0) {
-                testStatus = 'FAIL';
+                testStatus = 'FAILED';
                 currentTest.evidences = [];
 
                 for (var i in testRunInfo.screenshots) {
@@ -46,11 +46,11 @@ module.exports = function () {
             }
             else {
                 testRunInfo = 'Test executed without any error';
-                testStatus = 'PASS';
+                testStatus = 'PASSED';
             }
             currentTest.comment = testRunInfo;
             currentTest.status = testStatus;
-            currentTest.start =  this.moment(testStartDate).format('YYYY-MM-DDThh:mm:ssZ');
+            currentTest.start = this.moment(testStartDate).format('YYYY-MM-DDThh:mm:ssZ');
             currentTest.finish = this.moment(testStartDate).add('ms', testRunInfo.durationMs).format('YYYY-MM-DDThh:mm:ssZ');
             delete currentTest.comment.errs;
             this.xrayReport.tests.push(JSON.parse(JSON.stringify(currentTest)));
