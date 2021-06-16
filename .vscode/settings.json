@@ -10,5 +10,7 @@
         "parens",
         "proto",
         "stroustrup"
-    ]
+    ],
+    "eslint.format.enable": true,
+    "editor.formatOnSave": true
 }
