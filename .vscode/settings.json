@@ -1,0 +1,14 @@
+{
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "cSpell.words": [
+        "callsite",
+        "camelcase",
+        "eqeqeq",
+        "nofunc",
+        "nonwords",
+        "paren",
+        "parens",
+        "proto",
+        "stroustrup"
+    ]
+}

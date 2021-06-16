@@ -50,7 +50,7 @@ module.exports = function () {
             }
             currentTest.comment = testRunInfo;
             currentTest.status = testStatus;
-            currentTest.start =  this.moment(testStartDate).format('YYYY-MM-DDThh:mm:ssZ');
+            currentTest.start = this.moment(testStartDate).format('YYYY-MM-DDThh:mm:ssZ');
             currentTest.finish = this.moment(testStartDate).add('ms', testRunInfo.durationMs).format('YYYY-MM-DDThh:mm:ssZ');
             delete currentTest.comment.errs;
             this.xrayReport.tests.push(JSON.parse(JSON.stringify(currentTest)));
