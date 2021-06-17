@@ -1,6 +1,6 @@
 {
   "name": "testcafe-reporter-xray-cloud-json",
-  "version": "1.0.1",
+  "version": "0.0.1",
   "description": "xray-cloud-json TestCafe reporter plugin.",
   "repository": "https://github.com/PaulMEdwards/testcafe-reporter-xray-cloud-json",
   "author": {
