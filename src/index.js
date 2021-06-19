@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 let currentTest = {};
 
 module.exports = function () {
@@ -39,7 +41,7 @@ module.exports = function () {
                 currentTest.evidences = [];
 
                 for (var i in testRunInfo.screenshots) {
-                    currentEvidences.data = await this.base64Encode(testRunInfo.screenshots[i].screenshotPath);
+                    currentEvidences.data = fs.readFileSync(testRunInfo.screenshots[i].screenshotPath, 'base64');
                     currentEvidences.filename = testRunInfo.screenshots[i].screenshotPath;
                     currentEvidences.contentType = 'image/png';
                     currentTest.evidences.push(JSON.parse(JSON.stringify(currentEvidences)));
