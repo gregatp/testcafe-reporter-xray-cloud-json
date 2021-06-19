@@ -29,13 +29,14 @@ module.exports = function () {
             // NOTE: This method is optional.
         },
 
-        async reportTestDone (name, testRunInfo) {
+        async reportTestDone (name, testRunInfo, meta) {
             let testStatus = 'TODO';
             const currentEvidences = {};
 
             const testStartDate = new Date();
 
-            currentTest.testKey = ''; //still didn't find a way to get testKey so it stays empty for now
+            currentTest.testKey = meta.testId;
+
             if (!testRunInfo.skipped && JSON.stringify(testRunInfo.errs).replace(/[[\]]/g, '').length > 0) {
                 testStatus = 'FAILED';
                 currentTest.evidences = [];
