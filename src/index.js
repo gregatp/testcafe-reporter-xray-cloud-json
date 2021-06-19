@@ -10,10 +10,12 @@ module.exports = function () {
         noColors: true,
 
         reportTaskStart (startTime, userAgents/*, testCount*/) {
+            const environments = String(userAgents).replace(/\d|\.| /g, '').split(',');
+
             this.xrayReport.info.testPlanKey = '';
             this.xrayReport.info.summary = 'Execution of automated tests through testCafe';
             this.xrayReport.info.description = 'This execution is automatically generated using our Framework';
-            this.xrayReport.info.testEnvironments = userAgents;
+            this.xrayReport.info.testEnvironments = environments;
             this.xrayReport.info.startDate = this.moment(startTime).format('YYYY-MM-DDThh:mm:ssZ');
         },
 
