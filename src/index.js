@@ -47,13 +47,11 @@ module.exports = function () {
                     currentEvidences.contentType = 'image/png';
                     currentTest.evidences.push(JSON.parse(JSON.stringify(currentEvidences)));
                 }
-                testRunInfo = 'Execution failed.';
             }
-            else {
-                testRunInfo = 'Test executed without any error';
+            else 
                 testStatus = 'PASSED';
-            }
-            currentTest.comment = testRunInfo;
+            
+            currentTest.comment = name;
             currentTest.status = testStatus;
             currentTest.start = this.moment(testStartDate).format('YYYY-MM-DDThh:mm:ssZ');
             currentTest.finish = this.moment(testStartDate).add(testRunInfo.durationMs, 'ms').format('YYYY-MM-DDThh:mm:ssZ');
