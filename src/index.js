@@ -203,20 +203,23 @@ module.exports = function () {
 
         async reportTaskDone (endTime, passed, warnings, result) {
             const durationMs  = endTime - this.startTime;
-            const durationStr = this.moment
-                .duration(durationMs)
-                .format('h[h] mm[m] ss[s]');
 
-            let footer = result?.failedCount ?
-                `${result?.failedCount}/${this.testCount} failed` :
-                `${result?.passedCount} passed`;
+            if (DEBUG === true) {
+                const durationStr = this.moment
+                    .duration(durationMs)
+                    .format('h[h] mm[m] ss[s]');
 
-            footer += ` (Duration: ${durationStr})`;
-            footer += ` (Passed: ${passed})`;
-            footer += ` (Skipped: ${result?.skippedCount})`;
-            footer += ` (Warnings: ${warnings.length})`;
+                let footer = result?.failedCount ?
+                    `${result?.failedCount}/${this.testCount} failed` :
+                    `${result?.passedCount} passed`;
 
-            if (DEBUG === true) console.log(footer);
+                footer += ` (Duration: ${durationStr})`;
+                footer += ` (Passed: ${passed})`;
+                footer += ` (Skipped: ${result?.skippedCount})`;
+                footer += ` (Warnings: ${warnings.length})`;
+
+                console.log(footer);
+            }
 
             this.xrayReport.info.finishDate = this.moment(endTime).format('YYYY-MM-DDThh:mm:ssZ');
 
