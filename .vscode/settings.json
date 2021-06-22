@@ -1,6 +1,8 @@
 {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint",
     "cSpell.words": [
+        "Boukhenaif",
+        "TESTPLANKEY",
         "callsite",
         "camelcase",
         "eqeqeq",
@@ -9,7 +11,8 @@
         "paren",
         "parens",
         "proto",
-        "stroustrup"
+        "stroustrup",
+        "testcaferc"
     ],
     "eslint.format.enable": true,
     "editor.formatOnSave": true
