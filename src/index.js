@@ -7,14 +7,23 @@ require('util').inspect.defaultOptions.depth = null; // enable console.log full 
 
 let currentTest = {};
 
-let DEBUG = true; // TODO remove before release
+let DEBUG = false;
 
 function getEnv (key, _default) {
-    if (process.env[key] !== '') {
-        if (DEBUG === true) console.log(`Found env var '${key}'='${process.env[key]}'`); // TODO remove before release
-        return process.env[key];
+    const v = process.env[key];
+    if (v !== '') {
+        if (DEBUG === true) console.log(`Found env var '${key}'='${v}'`);
+
+        if (v === 'true' || v === 'false') {
+            if (DEBUG === true) console.log(`Detected Boolean value '${v}'`);
+            if (v === 'true')
+                return true;
+            return false;
+        }
+
+        return v;
     }
-    if (DEBUG === true) console.log(`Env var '${key}'='', using default: '${_default}'`); // TODO remove before release
+    if (DEBUG === true) console.log(`Env var '${key}'='', using default: '${_default}'`);
     return _default;
 }
 
@@ -29,9 +38,8 @@ module.exports = function () {
 
         noColors: true,
 
-        writeJsonFile: getEnv('JIRA_XRAY_CLOUD_WRITE_FILE', true),
-
-        jiraXrayCloudInfo: {
+        settings: {
+            writeFile:    getEnv('JIRA_XRAY_CLOUD_WRITE_FILE', true),
             upload:       getEnv('JIRA_XRAY_CLOUD_UPLOAD', true),
             hostname:     getEnv('JIRA_XRAY_CLOUD_HOSTNAME', 'https://xray.cloud.xpand-it.com'),
             clientId:     getEnv('JIRA_XRAY_CLOUD_CLIENT_ID', 'client_id'),
@@ -48,31 +56,31 @@ module.exports = function () {
             console.log('JSON file written\n');
         },
 
-        async uploadToJira (reportJsonData) {
+        async uploadToXray (reportJsonData) {
             console.log('\nUploading JSON Test Execution Report to Jira Xray Cloud...');
 
             // Authenticate with Xray Cloud for Jira Cloud
             const optionsAuth = {
-                url:     `${this.jiraXrayCloudInfo.hostname}/api/v2/authenticate`,
+                url:     `${this.settings.hostname}/api/v2/authenticate`,
                 method:  'POST',
                 json:    true,
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 data: {
-                    'client_id':     this.jiraXrayCloudInfo.clientId,
-                    'client_secret': this.jiraXrayCloudInfo.clientSecret,
+                    'client_id':     this.settings.clientId,
+                    'client_secret': this.settings.clientSecret,
                 },
             };
-            if (DEBUG === true) console.log('🚀 uploadToJira: optionsAuth:', optionsAuth);
+            if (DEBUG === true) console.log('🚀 uploadToXray: optionsAuth:', optionsAuth);
 
             const responseAuth = await axios(optionsAuth);
             const authToken = `Bearer ${responseAuth.data}`;
-            if (DEBUG === true) console.log('🚀 uploadToJira: authToken:', authToken);
+            if (DEBUG === true) console.log('🚀 uploadToXray: authToken:', authToken);
 
             // Import Xray Cloud JSON formatted Test Execution Report to Xray Cloud
             const optionsImportExecutionJSON = {
-                url:     `${this.jiraXrayCloudInfo.hostname}/api/v2/import/execution`,
+                url:     `${this.settings.hostname}/api/v2/import/execution`,
                 method:  'POST',
                 json:    true,
                 headers: {
@@ -81,10 +89,10 @@ module.exports = function () {
                 },
                 data: reportJsonData,
             };
-            if (DEBUG === true) console.log('🚀 uploadToJira: optionsImportExecutionJSON:', optionsImportExecutionJSON);
+            if (DEBUG === true) console.log('🚀 uploadToXray: optionsImportExecutionJSON:', optionsImportExecutionJSON);
 
             const responseImportExecutionJSON = await axios(optionsImportExecutionJSON);
-            if (DEBUG === true) console.log('🚀 uploadToJira: responseImportExecutionJSON:', responseImportExecutionJSON.data);
+            if (DEBUG === true) console.log('🚀 uploadToXray: responseImportExecutionJSON:', responseImportExecutionJSON.data);
 
             const baseUrl = String(responseImportExecutionJSON.data.self).split('/rest')[0];
             const issueUrl = `${baseUrl}/browse/${responseImportExecutionJSON.data.key}`;
@@ -94,6 +102,8 @@ module.exports = function () {
         },
 
         async reportTaskStart (startTime, userAgents, testCount) {
+            if (DEBUG === true) console.log('🚀 settings:', this.settings);
+
             this.startTime = startTime;
             this.testCount = testCount;
 
@@ -102,10 +112,10 @@ module.exports = function () {
             // Strip version numbers and spaces from userAgents and split by comma into array
             const environments = String(userAgents).replace(/\d|\.| /g, '').split(',');
 
-            if (this.jiraXrayCloudInfo.project !== '')
-                this.xrayReport.info.project = this.jiraXrayCloudInfo.project;
-            if (this.jiraXrayCloudInfo.testPlanKey !== '')
-                this.xrayReport.info.testPlanKey = this.jiraXrayCloudInfo.testPlanKey;
+            if (this.settings.project !== '')
+                this.xrayReport.info.project = this.settings.project;
+            if (this.settings.testPlanKey !== '')
+                this.xrayReport.info.testPlanKey = this.settings.testPlanKey;
             this.xrayReport.info.summary = 'Execution of automated tests via TestCafe';
             this.xrayReport.info.description = 'Test Execution Report automatically generated by TestCafe Framework';
             this.xrayReport.info.testEnvironments = environments;
@@ -197,22 +207,22 @@ module.exports = function () {
                 .duration(durationMs)
                 .format('h[h] mm[m] ss[s]');
 
-            let footer = result.failedCount ?
-                `${result.failedCount}/${this.testCount} failed` :
-                `${result.passedCount} passed`;
+            let footer = result?.failedCount ?
+                `${result?.failedCount}/${this.testCount} failed` :
+                `${result?.passedCount} passed`;
 
             footer += ` (Duration: ${durationStr})`;
             footer += ` (Passed: ${passed})`;
-            footer += ` (Skipped: ${result.skippedCount})`;
+            footer += ` (Skipped: ${result?.skippedCount})`;
             footer += ` (Warnings: ${warnings.length})`;
 
             if (DEBUG === true) console.log(footer);
 
             this.xrayReport.info.finishDate = this.moment(endTime).format('YYYY-MM-DDThh:mm:ssZ');
 
-            if (this.writeJsonFile) await this.writeFile(this.xrayReport);
+            if (this.settings.writeFile === true) await this.writeFile(this.xrayReport);
 
-            if (this.jiraXrayCloudInfo.upload) await this.uploadToJira(this.xrayReport);
+            if (this.settings.upload === true) await this.uploadToXray(this.xrayReport);
         }
     };
 };
