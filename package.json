@@ -3,6 +3,7 @@
   "version": "0.0.7",
   "description": "xray-cloud-json TestCafe reporter plugin.",
   "repository": "https://github.com/PaulMEdwards/testcafe-reporter-xray-cloud-json",
+  "homepage": "https://github.com/PaulMEdwards/testcafe-reporter-xray-cloud-json#readme",
   "author": {
     "name": "Paul M Edwards",
     "email": "pauledwards+github+testcafe-xray-cloud-json@gmail.com",
@@ -21,9 +22,11 @@
   "keywords": [
     "testcafe",
     "reporter",
+    "plugin",
+    "jira",
+    "jira-cloud",
     "xray",
-    "xray-cloud",
-    "plugin"
+    "xray-cloud"
   ],
   "license": "MIT",
   "devDependencies": {
