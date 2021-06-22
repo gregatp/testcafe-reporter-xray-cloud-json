@@ -4,6 +4,8 @@ This is the **xray-cloud-json** reporter plugin for [TestCafé](http://devexpres
 
 Using this reporter plugin, Test Execution reports can be generated in the [Xray Cloud JSON format](https://docs.getxray.app/display/XRAYCLOUD/Import+Execution+Results#ImportExecutionResults-XrayJSONformat) which can then be uploaded automatically or manually using the [Xray Cloud REST API](https://docs.getxray.app/display/XRAYCLOUD/REST+API): [Import Execution Results v2](https://docs.getxray.app/display/XRAYCLOUD/Import+Execution+Results+-+REST+v2#ImportExecutionResultsRESTv2-XrayJSONresults).
 
+PRs & contributors are welcomed! Feel free to take a look at the open [issues](https://github.com/PaulMEdwards/testcafe-reporter-xray-cloud-json/issues) (if there are any).
+
 ![preview image](https://raw.github.com/paulmedwards/testcafe-reporter-xray-cloud-json/master/media/preview.png)
 
 ## Install
