@@ -4,6 +4,9 @@
   "description": "xray-cloud-json TestCafe reporter plugin.",
   "repository": "https://github.com/PaulMEdwards/testcafe-reporter-xray-cloud-json",
   "homepage": "https://github.com/PaulMEdwards/testcafe-reporter-xray-cloud-json#readme",
+  "bugs": {
+    "url": "https://github.com/PaulMEdwards/testcafe-reporter-xray-cloud-json/issues"
+  },
   "author": {
     "name": "Paul M Edwards",
     "email": "pauledwards+github+testcafe-xray-cloud-json@gmail.com",
