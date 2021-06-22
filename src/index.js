@@ -1,6 +1,24 @@
+require('dotenv-safe').config({
+    allowEmptyValues: true,
+});
 const fs = require('fs');
+const axios = require('axios');
+require('util').inspect.defaultOptions.depth = null; // enable console.log full object output
 
 let currentTest = {};
+
+let DEBUG = true; // TODO remove before release
+
+function getEnv (key, _default) {
+    if (process.env[key] !== '') {
+        if (DEBUG === true) console.log(`Found env var '${key}'='${process.env[key]}'`); // TODO remove before release
+        return process.env[key];
+    }
+    if (DEBUG === true) console.log(`Env var '${key}'='', using default: '${_default}'`); // TODO remove before release
+    return _default;
+}
+
+DEBUG = getEnv('JIRA_XRAY_CLOUD_DEBUG', false);
 
 module.exports = function () {
     return {
@@ -11,58 +29,190 @@ module.exports = function () {
 
         noColors: true,
 
-        reportTaskStart (startTime, userAgents/*, testCount*/) {
+        writeJsonFile: getEnv('JIRA_XRAY_CLOUD_WRITE_FILE', true),
+
+        jiraXrayCloudInfo: {
+            upload:       getEnv('JIRA_XRAY_CLOUD_UPLOAD', true),
+            hostname:     getEnv('JIRA_XRAY_CLOUD_HOSTNAME', 'https://xray.cloud.xpand-it.com'),
+            clientId:     getEnv('JIRA_XRAY_CLOUD_CLIENT_ID', 'client_id'),
+            clientSecret: getEnv('JIRA_XRAY_CLOUD_CLIENT_SECRET', 'client_secret'),
+            project:      getEnv('JIRA_XRAY_CLOUD_PROJECT', ''),
+            testPlanKey:  getEnv('JIRA_XRAY_CLOUD_TESTPLANKEY', ''),
+        },
+
+        async writeFile (reportJsonData) {
+            console.log('\nWriting JSON file...');
+
+            await this.write(JSON.stringify(reportJsonData, null, 1));
+
+            console.log('JSON file written\n');
+        },
+
+        async uploadToJira (reportJsonData) {
+            console.log('\nUploading JSON Test Execution Report to Jira Xray Cloud...');
+
+            // Authenticate with Xray Cloud for Jira Cloud
+            const optionsAuth = {
+                url:     `${this.jiraXrayCloudInfo.hostname}/api/v2/authenticate`,
+                method:  'POST',
+                json:    true,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: {
+                    'client_id':     this.jiraXrayCloudInfo.clientId,
+                    'client_secret': this.jiraXrayCloudInfo.clientSecret,
+                },
+            };
+            if (DEBUG === true) console.log('🚀 uploadToJira: optionsAuth:', optionsAuth);
+
+            const responseAuth = await axios(optionsAuth);
+            const authToken = `Bearer ${responseAuth.data}`;
+            if (DEBUG === true) console.log('🚀 uploadToJira: authToken:', authToken);
+
+            // Import Xray Cloud JSON formatted Test Execution Report to Xray Cloud
+            const optionsImportExecutionJSON = {
+                url:     `${this.jiraXrayCloudInfo.hostname}/api/v2/import/execution`,
+                method:  'POST',
+                json:    true,
+                headers: {
+                    'Content-Type':  'application/json',
+                    'Authorization': authToken,
+                },
+                data: reportJsonData,
+            };
+            if (DEBUG === true) console.log('🚀 uploadToJira: optionsImportExecutionJSON:', optionsImportExecutionJSON);
+
+            const responseImportExecutionJSON = await axios(optionsImportExecutionJSON);
+            if (DEBUG === true) console.log('🚀 uploadToJira: responseImportExecutionJSON:', responseImportExecutionJSON.data);
+
+            const baseUrl = String(responseImportExecutionJSON.data.self).split('/rest')[0];
+            const issueUrl = `${baseUrl}/browse/${responseImportExecutionJSON.data.key}`;
+            console.log(issueUrl);
+
+            console.log('Finished uploading\n');
+        },
+
+        async reportTaskStart (startTime, userAgents, testCount) {
+            this.startTime = startTime;
+            this.testCount = testCount;
+
+            if (DEBUG === true) console.log('Running tests in:', userAgents, '\n');
+
+            // Strip version numbers and spaces from userAgents and split by comma into array
             const environments = String(userAgents).replace(/\d|\.| /g, '').split(',');
 
-            this.xrayReport.info.testPlanKey = '';
-            this.xrayReport.info.summary = 'Execution of automated tests through testCafe';
-            this.xrayReport.info.description = 'This execution is automatically generated using our Framework';
+            if (this.jiraXrayCloudInfo.project !== '')
+                this.xrayReport.info.project = this.jiraXrayCloudInfo.project;
+            if (this.jiraXrayCloudInfo.testPlanKey !== '')
+                this.xrayReport.info.testPlanKey = this.jiraXrayCloudInfo.testPlanKey;
+            this.xrayReport.info.summary = 'Execution of automated tests via TestCafe';
+            this.xrayReport.info.description = 'Test Execution Report automatically generated by TestCafe Framework';
             this.xrayReport.info.testEnvironments = environments;
             this.xrayReport.info.startDate = this.moment(startTime).format('YYYY-MM-DDThh:mm:ssZ');
         },
 
-        reportFixtureStart ( /*name, path */) {
+        async reportFixtureStart (name, path, meta) {
+            this.currentFixtureName = name;
+
+            if (DEBUG === true) console.log(`Fixture: ${name}\nPath: ${path}\nFixture Meta:`, meta, '\n');
+
             // throw new Error('Not implemented');
         },
 
-        async reportTestStart ( /*name, testMeta*/) {
+        async reportTestStart (name, meta) {
             // NOTE: This method is optional.
+
+            this.currentTestName = name;
+
+            if (DEBUG === true) console.log(`Starting Test: ${name}\nTest Meta:`, meta, '\n');
         },
 
         async reportTestDone (name, testRunInfo, meta) {
+            const errors      = testRunInfo.errs;
+            const warnings    = testRunInfo.warnings;
+            const hasErrors   = !!errors.length;
+            const hasWarnings = !!warnings.length;
+            const result      = hasErrors ? this.chalk.red('FAILED') : this.chalk.green('PASSED');
+
+            if (hasErrors) {
+                if (DEBUG === true) console.log('\nErrors:');
+
+                errors.forEach(error => {
+                    if (DEBUG === true) console.log(this.formatError(error));
+                });
+            }
+
+            if (hasWarnings) {
+                if (DEBUG === true) console.log('\nWarnings:');
+
+                warnings.forEach(warning => {
+                    if (DEBUG === true) console.log(warning);
+                });
+            }
+
             let testStatus = 'TODO';
             const currentEvidences = {};
 
             const testStartDate = new Date();
 
-            currentTest.testKey = meta.testId;
+            if (meta.testId)
+                currentTest.testKey = meta.testId;
+            else
+                currentTest.testKey = '';
 
-            if (!testRunInfo.skipped && JSON.stringify(testRunInfo.errs).replace(/[[\]]/g, '').length > 0) {
-                testStatus = 'FAILED';
-                currentTest.evidences = [];
+            if (!testRunInfo.skipped) {
+                if (testRunInfo.errs.length > 0) {
+                    testStatus = 'FAILED';
 
-                for (var i in testRunInfo.screenshots) {
-                    currentEvidences.data = fs.readFileSync(testRunInfo.screenshots[i].screenshotPath, 'base64');
-                    currentEvidences.filename = testRunInfo.screenshots[i].screenshotPath;
-                    currentEvidences.contentType = 'image/png';
-                    currentTest.evidences.push(JSON.parse(JSON.stringify(currentEvidences)));
+                    if (testRunInfo.screenshots?.length > 0) {
+                        currentTest.evidences = [];
+
+                        for (var i in testRunInfo.screenshots) {
+                            currentEvidences.data = fs.readFileSync(testRunInfo.screenshots[i].screenshotPath, 'base64');
+                            currentEvidences.filename = testRunInfo.screenshots[i].screenshotPath;
+                            currentEvidences.contentType = 'image/png';
+                            currentTest.evidences.push(JSON.parse(JSON.stringify(currentEvidences)));
+                        }
+                    }
                 }
+                else if (testRunInfo.errs.length === 0)
+                    testStatus = 'PASSED';
             }
-            else 
-                testStatus = 'PASSED';
-            
+
             currentTest.comment = name;
             currentTest.status = testStatus;
             currentTest.start = this.moment(testStartDate).format('YYYY-MM-DDThh:mm:ssZ');
             currentTest.finish = this.moment(testStartDate).add(testRunInfo.durationMs, 'ms').format('YYYY-MM-DDThh:mm:ssZ');
             delete currentTest.comment.errs;
+
+            if (DEBUG === true) console.log(`${result}: ${name}\nTest Meta:`, meta, '\ncurrentTest:', currentTest, '\n');
             this.xrayReport.tests.push(JSON.parse(JSON.stringify(currentTest)));
             currentTest = {};
         },
 
-        reportTaskDone (endTime /*, passed, warnings*/) {
+        async reportTaskDone (endTime, passed, warnings, result) {
+            const durationMs  = endTime - this.startTime;
+            const durationStr = this.moment
+                .duration(durationMs)
+                .format('h[h] mm[m] ss[s]');
+
+            let footer = result.failedCount ?
+                `${result.failedCount}/${this.testCount} failed` :
+                `${result.passedCount} passed`;
+
+            footer += ` (Duration: ${durationStr})`;
+            footer += ` (Passed: ${passed})`;
+            footer += ` (Skipped: ${result.skippedCount})`;
+            footer += ` (Warnings: ${warnings.length})`;
+
+            if (DEBUG === true) console.log(footer);
+
             this.xrayReport.info.finishDate = this.moment(endTime).format('YYYY-MM-DDThh:mm:ssZ');
-            this.write(JSON.stringify(this.xrayReport, null, 1));
+
+            if (this.writeJsonFile) await this.writeFile(this.xrayReport);
+
+            if (this.jiraXrayCloudInfo.upload) await this.uploadToJira(this.xrayReport);
         }
     };
 };
