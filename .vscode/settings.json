@@ -12,7 +12,8 @@
         "parens",
         "proto",
         "stroustrup",
-        "testcaferc"
+        "testcaferc",
+        "xraycloud"
     ],
     "eslint.format.enable": true,
     "editor.formatOnSave": true
