@@ -40,7 +40,7 @@ module.exports = function () {
 
         settings: {
             writeFile:    getEnv('JIRA_XRAY_CLOUD_WRITE_FILE', true),
-            upload:       getEnv('JIRA_XRAY_CLOUD_UPLOAD', true),
+            upload:       getEnv('JIRA_XRAY_CLOUD_UPLOAD', false),
             hostname:     getEnv('JIRA_XRAY_CLOUD_HOSTNAME', 'https://xray.cloud.xpand-it.com'),
             clientId:     getEnv('JIRA_XRAY_CLOUD_CLIENT_ID', 'client_id'),
             clientSecret: getEnv('JIRA_XRAY_CLOUD_CLIENT_SECRET', 'client_secret'),
