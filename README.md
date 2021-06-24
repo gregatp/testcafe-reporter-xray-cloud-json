@@ -22,7 +22,7 @@ This reporter requires some information to perform its functions. All values are
 
 #### Test Environments & Instances
 
-The `JIRA_XRAY_CLOUD_INSTANCE` setting can be specified to indicate which Application Under Test (AUT) instance the tests are being executed against. If specified, the value will be appended to the Xray Test Execution Jira issue generated and also be applied as the first value in the array of [Parsed Operating System (OS) & Browsers]() TestCafé reports it's running (i.e. Chrome, Firefox, etc.). The `info.testEnvironments` key value in the generated JSON will be set to this array's values. ALL values in `info.testEnvironments` MUST match a value in Jira > Project settings > Xray Settings > Test Environments, otherwise an error will be thrown when uploading the JSON to Xray.
+The `JIRA_XRAY_CLOUD_INSTANCE` setting can be specified to indicate which Application Under Test (AUT) instance the tests are being executed against. If specified, the value will be appended to the Xray Test Execution Jira issue generated and also be applied as the first value in the array of [Parsed Operating System (OS) & Browsers](#parsed-operating-system-os--browsers) TestCafé reports it's running (i.e. Chrome, Firefox, etc.). The `info.testEnvironments` key value in the generated JSON will be set to this array's values. ALL values in `info.testEnvironments` MUST match a value in Jira > Project settings > Xray Settings > Test Environments, otherwise an error will be thrown when uploading the JSON to Xray.
 
 Here is an example screenshot of our configured Xray Project Test Environments to show how we are using it:
 
