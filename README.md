@@ -6,7 +6,7 @@ Using this reporter plugin, Test Execution reports can be generated in the [Xray
 
 PRs & contributors are welcomed! Feel free to take a look at the open [issues](https://github.com/PaulMEdwards/testcafe-reporter-xray-cloud-json/issues) (if there are any).
 
-![preview image](https://raw.github.com/paulmedwards/testcafe-reporter-xray-cloud-json/master/media/preview.png)
+![preview image](./media/preview.png)
 
 ## Install
 
@@ -18,7 +18,27 @@ npm install testcafe-reporter-xray-cloud-json
 
 ### Settings
 
-This reporter requires some information to perform its functions. Some values are optional, some are required, and some are required depending on other parameter values. All of this is documented in the [`.env.example`](./.env.example) file.
+This reporter requires some information to perform its functions. All values are optional, but some are required depending on other parameter values. All of this is documented in the [`.env.example`](./.env.example) file.
+
+#### Test Environments & Instances
+
+The `JIRA_XRAY_CLOUD_INSTANCE` setting can be specified to indicate which Application Under Test (AUT) instance the tests are being executed against. If specified, the value will be appended to the Xray Test Execution Jira issue generated and also be applied as the first value in the array of [Parsed Operating System (OS) & Browsers]() TestCafé reports it's running (i.e. Chrome, Firefox, etc.). The `info.testEnvironments` key value in the generated JSON will be set to this array's values. ALL values in `info.testEnvironments` MUST match a value in Jira > Project settings > Xray Settings > Test Environments, otherwise an error will be thrown when uploading the JSON to Xray.
+
+Here is an example screenshot of our configured Xray Project Test Environments to show how we are using it:
+
+![Xray Settings - Project Test Environments](./media/Xray%20Settings%20-%20Project%20Test%20Environments.png)
+
+#### Parsed Operating System (OS) & Browsers
+
+The reporter parses the raw OS & Browser values provided by TestCafé, stripping out numbers, spaces, and the words "Headless" & "Microsoft".
+
+Raw Value | Becomes
+--------- | -------
+Chrome 91.0.4472.114 / macOS 10.15.7 | Chrome/macOS
+Firefox 89.0 / Linux 0.0 | Firefox/Linux
+Opera 77.0.4054.90 / macOS 10.15.7 | Opera/Windows
+Safari 14.1.1 / macOS 10.15.7 | Safari/macOS
+Microsoft Edge 18.17763 / Windows 10 | Edge/Windows
 
 ### Command Line
 
@@ -88,7 +108,7 @@ Example showing `xray-cloud-json` reporter added at the bottom, in addition to t
 When updating the reporter, it's recommended to use the npm/yarn linking feature:
 
   1. `npm link` or `yarn link` (inside ./lib/ folder)
-  2. `npm/yarn link testcafe-reporter-xray-cloud-json` (inside consumer root folder, i.e. your TestCafe project)
+  2. `npm/yarn link testcafe-reporter-xray-cloud-json` (inside consumer root folder, i.e. your TestCafé project)
 
 ## Authors
 
