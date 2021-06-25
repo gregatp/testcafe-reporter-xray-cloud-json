@@ -110,8 +110,11 @@ When updating the reporter, it's recommended to use the npm/yarn linking feature
   1. `npm link` or `yarn link` (inside ./lib/ folder)
   2. `npm/yarn link testcafe-reporter-xray-cloud-json` (inside consumer root folder, i.e. your TestCafé project)
 
-## Authors
+## Author(s)
 
 - [Paul M Edwards](https://github.com/PaulMEdwards)
+
+### Thanks to
+
 - [Mohammed Boukhenaif](https://github.com/s1mob)
 - [Antonio Reyes](https://github.com/antreyes)
