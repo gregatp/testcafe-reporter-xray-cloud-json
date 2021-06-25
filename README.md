@@ -14,6 +14,12 @@ PRs & contributors are welcomed! Feel free to take a look at the open [issues](h
 npm install testcafe-reporter-xray-cloud-json
 ```
 
+or
+
+```text
+yarn add testcafe-reporter-xray-cloud-json
+```
+
 ## Usage
 
 ### Settings
